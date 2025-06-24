@@ -1,0 +1,84 @@
+version: '3.8' # Specify docker-compose version
+
+services:
+  backend:
+    build:
+      context: . # Project root as context
+      dockerfile: backend/Dockerfile
+    container_name: financial_dashboard_backend
+    # Load environment variables from .env file in the project root
+    # These will be available to the backend service.
+    env_file:
+      - .env
+    # Alternatively, define specific environment variables:
+    # environment:
+    #   - DATABASE_URL=${DATABASE_URL} # Example, if DATABASE_URL is in .env
+    #   - SECRET_KEY=${SECRET_KEY}
+    #   - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
+    ports:
+      - "8000:8000" # Map host port 8000 to container port 8000
+    volumes:
+      # For development, you might want to mount your source code to see changes live:
+      # - ./backend:/app/backend
+      # For "production-like" build, code is copied in Dockerfile, so no volume mount needed for code.
+      # If using SQLite and want data to persist outside container:
+      - ./data:/app/data # Mount the data directory for SQLite DB persistence
+    networks:
+      - financial_dashboard_network
+    depends_on:
+      # Add database service here if using a Dockerized DB like Postgres
+      # - db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: financial_dashboard_frontend
+    ports:
+      - "8501:8501" # Map host port 8501 to container port 8501
+    environment:
+      # Pass the backend URL to the Streamlit app.
+      # Inside Docker network, services can reach each other by service name.
+      - BACKEND_URL=http://backend:8000
+      # Streamlit specific env vars if needed, e.g., for theming
+      # - STREAMLIT_THEME_BASE=dark
+    volumes:
+      # For development, mount source code:
+      # - ./frontend:/app/frontend
+      pass # No volumes needed for code if built into image
+    networks:
+      - financial_dashboard_network
+    depends_on:
+      - backend # Frontend should start after backend is likely up (not a strict guarantee of readiness)
+    restart: unless-stopped
+
+  # Example for a PostgreSQL database service (if not using SQLite)
+  # db:
+  #   image: postgres:15
+  #   container_name: financial_dashboard_db
+  #   env_file:
+  #     - .env # Ensure .env contains POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data # Persist PostgreSQL data
+  #   ports:
+  #     - "5432:5432" # Expose DB port if needed for external access (usually not for app-internal DB)
+  #   networks:
+  #     - financial_dashboard_network
+  #   restart: unless-stopped
+
+# Define a network for services to communicate
+networks:
+  financial_dashboard_network:
+    driver: bridge
+
+# Define named volume for database persistence (if using Dockerized DB)
+# volumes:
+#   postgres_data:
+#     driver: local
+#   # For SQLite, the ./data:/app/data bind mount in backend service handles persistence.
+#   # No separate named volume needed for SQLite if mapped to host directory.

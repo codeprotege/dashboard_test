@@ -1,0 +1,35 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+# Virtual environment directories
+env/
+venv/
+# SQLite databases
+*.db
+*.sqlite3
+# OS-specific files
+.DS_Store
+# Build artifacts
+build/
+dist/
+*.egg-info/
+# Log files
+*.log
+# Translation files
+*.pot
+*.mo
+# Local data files (if not intended to be versioned)
+# data/*.csv
+# data/*.xlsx
+# data/*.json
+# IDE specific files
+.vscode/
+.idea/
+# Env file - CRITICAL to not commit this
+.env
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+# Streamlit specific
+.streamlit/
