@@ -1,0 +1,53 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile*
+docker-compose.yml
+.dockerignore
+
+# Python virtual environment
+venv/
+env/
+*.pyc
+__pycache__/
+*.egg-info/
+
+# Local data, if not meant to be in image (SQLite DB file itself should not be in image)
+# data/*.db
+# data/*.sqlite3
+# (The data/ directory itself might be created by backend if it doesn't exist for SQLite,
+# but the actual DB file should be managed by a volume or bind mount, not copied into image)
+# Our docker-compose mounts ./data:/app/data, so the DB lives on the host.
+
+# Test files and coverage reports
+tests/
+test_db.db* # Test database file
+.pytest_cache/
+htmlcov/
+.coverage
+
+# IDE and OS specific files
+.vscode/
+.idea/
+*.DS_Store
+*.log
+
+# Node.js (if any frontend JS part was added, which is not the case here)
+# node_modules/
+# npm-debug.log
+# yarn-error.log
+
+# Docs (unless you want to serve them from a container)
+# docs/
+
+# README and other markdown files not needed in runtime image
+# README.md
+# AGENTS.md
+# USER_GUIDE.md # (This is in docs/)
+
+# If .env file is present in context but should NOT be copied to image (use env_file in docker-compose)
+.env
+# (Our backend Dockerfile doesn't copy .env, which is good practice)
